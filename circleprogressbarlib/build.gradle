@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.lyx0206331'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -27,15 +28,5 @@ dependencies {
 
     implementation 'com.android.support:appcompat-v7:28.0.0-rc01'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
-    }
 }
 
