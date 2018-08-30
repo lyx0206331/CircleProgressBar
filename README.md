@@ -15,3 +15,4 @@ Step 2. Add the dependency
 	dependencies {
 	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.3'
 	}
+
