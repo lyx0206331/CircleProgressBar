@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation "com.android.support:appcompat-v7:$supportV7Version"
     implementation project(':circleprogressbarlib')
 //    implementation 'com.github.lyx0206331:CircleProgressBar:0.0.3'
 }

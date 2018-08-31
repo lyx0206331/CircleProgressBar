@@ -91,7 +91,7 @@ class FantasticButton : FrameLayout {
 
     //停止动画类型
     @CircleProgressBar.StopAnimType
-    var mStopAnimType = 0
+    var mStopAnimType = CircleProgressBar.STOP_ANIM_SIMPLE
         set(value) {
             field = value
             mCircleProgressBar?.mStopAnimType = value
@@ -127,9 +127,8 @@ class FantasticButton : FrameLayout {
             mCircleProgressBar?.mOnPressedListener = value
         }
 
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    @JvmOverloads
+    constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         mCircleProgressBar = CircleProgressBar(context)
         mCircleProgressBar?.mShowValue = false
         super.addView(mCircleProgressBar)

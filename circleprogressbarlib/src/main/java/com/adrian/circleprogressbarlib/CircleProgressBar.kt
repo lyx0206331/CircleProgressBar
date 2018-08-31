@@ -17,6 +17,7 @@ import android.view.View
  * date:2018/8/27 11:43
  * author：RanQing
  * description：此控件带进度显示，可设置居中图片，可显示进度值，可选择进度样式，可选择动画效果，也可当按下时带进度的按钮使用
+ * 在sdk版本27.1.1以下的版本中@IntDef内数据为long，在27.1.1及以上版本中@IntDef类型为int，为向下兼容较低版本的sdk，annotations库使用的版本为27.0.2
  */
 class CircleProgressBar : View {
 
@@ -26,21 +27,21 @@ class CircleProgressBar : View {
         const val LINEAR_START_DEGREE = 90f
 
         //表盘式刻度线进度条
-        const val LINE = 0
+        const val LINE = 0L
         //实心扇形进度条
-        const val SOLID = 1
+        const val SOLID = 1L
         //实心线形进度条
-        const val SOLID_LINE = 2
+        const val SOLID_LINE = 2L
 
         //线性渐变
-        const val LINEAR = 0
+        const val LINEAR = 0L
         //径向渐变
-        const val RADIAL = 1
+        const val RADIAL = 1L
         //扫描渐变
-        const val SWEEP = 2
+        const val SWEEP = 2L
 
-        const val STOP_ANIM_SIMPLE = 0
-        const val STOP_ANIM_REVERSE = 1
+        const val STOP_ANIM_SIMPLE = 0L
+        const val STOP_ANIM_REVERSE = 1L
 
         const val DEFAULT_START_DEGREE = -90f
         const val DEFAULT_LINE_COUNT = 45
@@ -181,7 +182,7 @@ class CircleProgressBar : View {
 
     //停止动画类型
     @StopAnimType
-    var mStopAnimType = 0
+    var mStopAnimType = STOP_ANIM_SIMPLE
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(LINE, SOLID, SOLID_LINE)
@@ -224,17 +225,16 @@ class CircleProgressBar : View {
     //进度条动画
     private var mAnimator: ValueAnimator? = null
 
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    @JvmOverloads
+    constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         if (context == null) return
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.CircleProgressBar, defStyleAttr, 0)
 
         mLineCount = a.getInt(R.styleable.CircleProgressBar_line_count, DEFAULT_LINE_COUNT)
-        mStopAnimType = a.getInt(R.styleable.CircleProgressBar_stop_anim_type, STOP_ANIM_SIMPLE)
-        mStyle = a.getInt(R.styleable.CircleProgressBar_style, LINE)
-        mShader = a.getInt(R.styleable.CircleProgressBar_progress_shader, LINEAR)
+        mStopAnimType = a.getInt(R.styleable.CircleProgressBar_stop_anim_type, STOP_ANIM_SIMPLE.toInt()).toLong()
+        mStyle = a.getInt(R.styleable.CircleProgressBar_style, LINE.toInt()).toLong()
+        mShader = a.getInt(R.styleable.CircleProgressBar_progress_shader, LINEAR.toInt()).toLong()
         mCap = if (a.hasValue(R.styleable.CircleProgressBar_progress_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.CircleProgressBar_progress_stroke_cap, 0)] else Paint.Cap.BUTT
         mLineWidth = a.getDimension(R.styleable.CircleProgressBar_line_width, Utils.dip2px(context, DEFAULT_LINE_WIDTH))
         mProgressTextSize = a.getDimension(R.styleable.CircleProgressBar_progress_text_size, DEFAULT_PROGRESS_TEXT_SIZE)
@@ -461,6 +461,7 @@ class CircleProgressBar : View {
      * @param end 动画终止时进度.默认最大值
      * @param repeatCount 动画重复执行次数.默认为0不重复，ValueAnimator.INFINITE(无限循环)
      */
+    @JvmOverloads
     fun startAnimator(duration: Long = 1000, start: Int = 0, end: Int = mMax, repeatCount: Int = 0) {
         if (mAnimator == null) {
             mAnimator = ValueAnimator()
