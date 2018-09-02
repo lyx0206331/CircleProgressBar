@@ -9,6 +9,7 @@ import android.view.MotionEvent
 import android.widget.Button
 import android.widget.Toast
 import com.adrian.circleprogressbarlib.CircleProgressBar
+import com.adrian.circleprogressbarlib.CircleProgressLinearLayout
 import com.adrian.circleprogressbarlib.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_center_view.*
@@ -45,6 +46,49 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        mCustomProgressBar5?.mOnPressedListener = object : CircleProgressBar.OnPressedListener {
+            override fun onPressEnd() {
+                toast("press end")
+            }
+
+            override fun onPressStart() {
+                toast("press start")
+            }
+
+            override fun onPressProcess(progress: Int) {
+//                Utils.logE("PROGRESS", "progress: $progress")
+            }
+
+            override fun onPressInterrupt(progress: Int) {
+                toast("press interrupt: $progress")
+            }
+
+        }
+
+        continuable_progress5.mProgressFormatter = object : CircleProgressBar.ProgressFormatter {
+            override fun format(progress: Int, max: Int): CharSequence {
+                return "${progress}c"
+            }
+
+        }
+        continuable_progress5.mOnPressedListener = object : CircleProgressBar.OnPressedListener {
+            override fun onPressEnd() {
+                toast("press end")
+            }
+
+            override fun onPressStart() {
+                toast("press start")
+            }
+
+            override fun onPressProcess(progress: Int) {
+//                Utils.logE("PROGRESS", "progress: $progress")
+            }
+
+            override fun onPressInterrupt(progress: Int) {
+                toast("press interrupt: $progress")
+            }
+
+        }
 
         fantastic_btn.mStyle = CircleProgressBar.SOLID_LINE
         fantastic_btn.mProgressStrokeWidth = Utils.dip2px(this, 3f)
@@ -65,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onPressProcess(progress: Int) {
-                Utils.logE("PROGRESS", "progress: $progress")
+//                Utils.logE("PROGRESS", "progress: $progress")
 //                btn.text = "btn:$progress"
                 textView.text = "tv:$progress"
             }
@@ -84,6 +128,38 @@ class MainActivity : AppCompatActivity() {
             super.onTouchEvent(motionEvent)
         }
         fantastic_btn.setCenterView(centerView)
+
+        cpll.mOnPressedListener = object : CircleProgressLinearLayout.OnPressedListener {
+            override fun onPressEnd() {
+                toast("press end")
+                btnCenter.text = "end"
+            }
+
+            override fun onPressStart() {
+                toast("press start")
+                btnCenter.text = "start"
+            }
+
+            override fun onPressProcess(progress: Int) {
+                Utils.logE("PROGRESS", "progress: $progress")
+//                btn.text = "btn:$progress"
+                tvCenter.text = "$progress"
+            }
+
+            override fun onPressInterrupt(progress: Int) {
+                toast("press interrupt: $progress")
+                btnCenter.text = "interrupt"
+            }
+        }
+        cpll.isLinkChildTouchEvent = false
+        btnCenter.setOnTouchListener { v, event ->
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> (v as Button).text = "Down"
+                MotionEvent.ACTION_UP -> (v as Button).text = "Up"
+            }
+            super.onTouchEvent(event)
+        }
+        cpll.mProgress = 45
     }
 
     override fun onResume() {
@@ -98,24 +174,7 @@ class MainActivity : AppCompatActivity() {
         mCustomProgressBar2?.startAnimator(3000, 100, 30, ValueAnimator.INFINITE)
         mCustomProgressBar3?.startAnimator(4000, repeatCount = ValueAnimator.INFINITE)
         mCustomProgressBar4?.startAnimator(4000, repeatCount = ValueAnimator.INFINITE)
-        mCustomProgressBar5?.mOnPressedListener = object : CircleProgressBar.OnPressedListener {
-            override fun onPressEnd() {
-                toast("press end")
-            }
 
-            override fun onPressStart() {
-                toast("press start")
-            }
-
-            override fun onPressProcess(progress: Int) {
-                Utils.logE("PROGRESS", "progress: $progress")
-            }
-
-            override fun onPressInterrupt(progress: Int) {
-                toast("press interrupt: $progress")
-            }
-
-        }
         mCustomProgressBar6?.startAnimator(4000, 20, 80, ValueAnimator.INFINITE)
     }
 

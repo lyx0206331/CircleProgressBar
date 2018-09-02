@@ -10,6 +10,7 @@ import android.os.Parcelable
 import android.support.annotation.IntDef
 import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 
@@ -173,7 +174,7 @@ class CircleProgressBar : View {
             field = value
             invalidate()
         }
-    //动画是否已停止,此判断防止多次响应停止接口方法
+    //动画是否已停止,此判断防止重复响应停止接口方法
     private var isStopedAnim = true
 
     @Retention(AnnotationRetention.SOURCE)
@@ -225,29 +226,39 @@ class CircleProgressBar : View {
     //进度条动画
     private var mAnimator: ValueAnimator? = null
 
+    //是否支持连续进度加载
+    var isContinuable: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                mAnimator?.repeatCount = 0
+            }
+        }
+
     @JvmOverloads
     constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         if (context == null) return
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.CircleProgressBar, defStyleAttr, 0)
 
-        mLineCount = a.getInt(R.styleable.CircleProgressBar_line_count, DEFAULT_LINE_COUNT)
-        mStopAnimType = a.getInt(R.styleable.CircleProgressBar_stop_anim_type, STOP_ANIM_SIMPLE.toInt()).toLong()
-        mStyle = a.getInt(R.styleable.CircleProgressBar_style, LINE.toInt()).toLong()
-        mShader = a.getInt(R.styleable.CircleProgressBar_progress_shader, LINEAR.toInt()).toLong()
-        mCap = if (a.hasValue(R.styleable.CircleProgressBar_progress_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.CircleProgressBar_progress_stroke_cap, 0)] else Paint.Cap.BUTT
-        mLineWidth = a.getDimension(R.styleable.CircleProgressBar_line_width, Utils.dip2px(context, DEFAULT_LINE_WIDTH))
-        mProgressTextSize = a.getDimension(R.styleable.CircleProgressBar_progress_text_size, DEFAULT_PROGRESS_TEXT_SIZE)
-        mProgressStrokeWidth = a.getDimension(R.styleable.CircleProgressBar_progress_stroke_width, DEFAULT_PROGRESS_STROKE_WIDTH)
-        mProgressStartColor = a.getColor(R.styleable.CircleProgressBar_progress_start_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressEndColor = a.getColor(R.styleable.CircleProgressBar_progress_end_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressTextColor = a.getColor(R.styleable.CircleProgressBar_progress_text_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressBackgroundColor = a.getColor(R.styleable.CircleProgressBar_progress_background_color, Color.parseColor(COLOR_FFD3D3D5))
-        mStartDegree = a.getFloat(R.styleable.CircleProgressBar_progress_start_degree, DEFAULT_START_DEGREE)
-        mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.CircleProgressBar_drawBackgroundOutsideProgress, false)
-        mCenterColor = a.getColor(R.styleable.CircleProgressBar_center_color, Color.TRANSPARENT)
-        mShowValue = a.getBoolean(R.styleable.CircleProgressBar_show_value, true)
-        mCenterDrawable = a.getDrawable(R.styleable.CircleProgressBar_center_src)
+        mLineCount = a.getInt(R.styleable.CircleProgressBar_cpb_line_count, DEFAULT_LINE_COUNT)
+        mStopAnimType = a.getInt(R.styleable.CircleProgressBar_cpb_stop_anim_type, STOP_ANIM_SIMPLE.toInt()).toLong()
+        mStyle = a.getInt(R.styleable.CircleProgressBar_cpb_style, LINE.toInt()).toLong()
+        mShader = a.getInt(R.styleable.CircleProgressBar_cpb_shader, LINEAR.toInt()).toLong()
+        mCap = if (a.hasValue(R.styleable.CircleProgressBar_cpb_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.CircleProgressBar_cpb_stroke_cap, 0)] else Paint.Cap.BUTT
+        mLineWidth = a.getDimension(R.styleable.CircleProgressBar_cpb_line_width, Utils.dip2px(context, DEFAULT_LINE_WIDTH))
+        mProgressTextSize = a.getDimension(R.styleable.CircleProgressBar_cpb_text_size, DEFAULT_PROGRESS_TEXT_SIZE)
+        mProgressStrokeWidth = a.getDimension(R.styleable.CircleProgressBar_cpb_stroke_width, DEFAULT_PROGRESS_STROKE_WIDTH)
+        mProgressStartColor = a.getColor(R.styleable.CircleProgressBar_cpb_start_color, Color.parseColor(COLOR_FFF2A670))
+        mProgressEndColor = a.getColor(R.styleable.CircleProgressBar_cpb_end_color, Color.parseColor(COLOR_FFF2A670))
+        mProgressTextColor = a.getColor(R.styleable.CircleProgressBar_cpb_text_color, Color.parseColor(COLOR_FFF2A670))
+        mProgressBackgroundColor = a.getColor(R.styleable.CircleProgressBar_cpb_background_color, Color.parseColor(COLOR_FFD3D3D5))
+        mStartDegree = a.getFloat(R.styleable.CircleProgressBar_cpb_start_degree, DEFAULT_START_DEGREE)
+        mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.CircleProgressBar_cpb_drawBackgroundOutsideProgress, false)
+        mCenterColor = a.getColor(R.styleable.CircleProgressBar_cpb_center_color, Color.TRANSPARENT)
+        mShowValue = a.getBoolean(R.styleable.CircleProgressBar_cpb_show_value, true)
+        mCenterDrawable = a.getDrawable(R.styleable.CircleProgressBar_cpb_center_src)
+        isContinuable = a.getBoolean(R.styleable.CircleProgressBar_cpb_continuable, false)
 
         a.recycle()
 
@@ -466,17 +477,22 @@ class CircleProgressBar : View {
         if (mAnimator == null) {
             mAnimator = ValueAnimator()
         }
-        mAnimator?.setIntValues(if (start < 0) 0 else start, if (end > mMax) mMax else end)
+        val s = if (isContinuable) { if (mProgress >= mMax) 0 else mProgress } else if (start < 0) 0 else if (start > mMax) mMax else start
+        val e = if (end > mMax) mMax else if (end < 0) 0 else end
+        mAnimator?.setIntValues(s, e)
         mAnimator?.addUpdateListener {
             mProgress = it.animatedValue as Int
             mOnPressedListener?.onPressProcess(mProgress)
             if (mProgress == end && !isStopedAnim) {
                 mOnPressedListener?.onPressEnd()
                 isStopedAnim = true
+                mAnimator?.cancel()
             }
         }
-        mAnimator?.duration = duration
-        mAnimator?.repeatCount = repeatCount
+        if (mProgress == 0) {
+            mAnimator?.duration = duration
+            mAnimator?.repeatCount = if (isContinuable) 0 else repeatCount
+        }
         mAnimator?.start()
 
         mOnPressedListener?.onPressStart()
@@ -487,16 +503,20 @@ class CircleProgressBar : View {
      * 停止动画
      */
     fun stopAnimator() {
-        if (mAnimator != null && mAnimator!!.isRunning) {
+        if (mAnimator != null && mAnimator!!.isRunning && !isStopedAnim) {
             if (!isStopedAnim) {
                 mOnPressedListener?.onPressInterrupt(mAnimator!!.animatedValue as Int)
                 isStopedAnim = true
             }
-            if (mStopAnimType == STOP_ANIM_SIMPLE) {    //直接停止动画并恢复到进度0
+            if (isContinuable) {
                 mAnimator?.cancel()
-                mProgress = 0
-            } else {    //动画回退到进度0
-                mAnimator?.reverse()
+            } else {
+                if (mStopAnimType == STOP_ANIM_SIMPLE) {    //直接停止动画并恢复到进度0
+                    mAnimator?.cancel()
+                    mProgress = 0
+                } else {    //动画回退到进度0
+                    mAnimator?.reverse()
+                }
             }
         }
     }
@@ -510,11 +530,27 @@ class CircleProgressBar : View {
             MotionEvent.ACTION_UP -> {
                 stopAnimator()
             }
+            MotionEvent.ACTION_MOVE -> {
+                if (!isValid(event.x, event.y)) {
+                    stopAnimator()
+                }
+            }
             MotionEvent.ACTION_CANCEL -> {
                 stopAnimator()
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    /**
+     * 触摸点是否在控件范围内
+     */
+    fun isValid(touchX: Float, touchY: Float): Boolean {
+        return touchX >= 0 && touchX <= width && touchY >= 0 && touchY <= height
+    }
+
+    private fun logE(msg: String) {
+        Log.e("CircleProgressBar", msg)
     }
 
     interface OnPressedListener {

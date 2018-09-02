@@ -155,6 +155,11 @@ class FantasticButton : FrameLayout {
             MotionEvent.ACTION_UP -> {
                 mCircleProgressBar?.stopAnimator()
             }
+            MotionEvent.ACTION_MOVE -> {
+            if (mCircleProgressBar != null && !mCircleProgressBar!!.isValid(ev.x, ev.y)) {
+                mCircleProgressBar?.stopAnimator()
+            }
+        }
             MotionEvent.ACTION_CANCEL -> {
                 mCircleProgressBar?.stopAnimator()
             }

@@ -1,37 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CircleProgressBar">
-        <attr name="line_count" format="integer|reference" />
-        <attr name="line_width" format="dimension|reference" />
-        <attr name="progress_start_color" format="color|reference" />
-        <attr name="progress_end_color" format="color|reference" />
-        <attr name="progress_text_color" format="color|reference" />
-        <attr name="progress_text_size" format="dimension|reference" />
-        <attr name="progress_stroke_width" format="dimension|reference" />
-        <attr name="progress_background_color" format="color|reference" />
-        <attr name="progress_start_degree" format="float|reference" />
-        <attr name="drawBackgroundOutsideProgress" format="boolean|reference" />
-        <attr name="center_src" format="reference" />
-        <attr name="center_color" format="color|reference" />
-        <attr name="show_value" format="boolean|reference" />
-        <attr name="stop_anim_type">
+        <attr name="cpb_line_count" format="integer|reference" />
+        <attr name="cpb_line_width" format="dimension|reference" />
+        <attr name="cpb_start_color" format="color|reference" />
+        <attr name="cpb_end_color" format="color|reference" />
+        <attr name="cpb_text_color" format="color|reference" />
+        <attr name="cpb_text_size" format="dimension|reference" />
+        <attr name="cpb_stroke_width" format="dimension|reference" />
+        <attr name="cpb_background_color" format="color|reference" />
+        <attr name="cpb_start_degree" format="float|reference" />
+        <attr name="cpb_drawBackgroundOutsideProgress" format="boolean|reference" />
+        <attr name="cpb_center_src" format="reference" />
+        <attr name="cpb_center_color" format="color|reference" />
+        <attr name="cpb_show_value" format="boolean|reference" />
+        <attr name="cpb_continuable" format="boolean|reference" />
+        <attr name="cpb_stop_anim_type">
             <enum name="simple_stop" value="0" />
             <enum name="reverse_stop" value="1" />
         </attr>
 
-        <attr name="style">
+        <attr name="cpb_style">
             <enum name="line" value="0" />
             <enum name="solid" value="1" />
             <enum name="solid_line" value="2" />
         </attr>
 
-        <attr name="progress_shader">
+        <attr name="cpb_shader">
             <enum name="linear" value="0" />
             <enum name="radial" value="1" />
             <enum name="sweep" value="2" />
         </attr>
 
-        <attr name="progress_stroke_cap">
+        <attr name="cpb_stroke_cap">
+            <enum name="butt" value="0" />
+            <enum name="round" value="1" />
+            <enum name="square" value="2" />
+        </attr>
+
+    </declare-styleable>
+
+    <declare-styleable name="FantasticLayout">
+        <attr name="fantasticlayout_line_count" format="integer|reference" />
+        <attr name="fantasticlayout_line_width" format="dimension|reference" />
+        <attr name="fantasticlayout_start_color" format="color|reference" />
+        <attr name="fantasticlayout_end_color" format="color|reference" />
+        <attr name="fantasticlayout_stroke_width" format="dimension|reference" />
+        <attr name="fantasticlayout_background_color" format="color|reference" />
+        <attr name="fantasticlayout_start_degree" format="float|reference" />
+        <attr name="fantasticlayout_drawBackgroundOutsideProgress" format="boolean|reference" />
+        <attr name="fantasticlayout_center_color" format="color|reference" />
+        <attr name="fantasticlayout_stop_anim_type">
+            <enum name="simple_stop" value="0" />
+            <enum name="reverse_stop" value="1" />
+        </attr>
+
+        <attr name="fantasticlayout_style">
+            <enum name="line" value="0" />
+            <enum name="solid" value="1" />
+            <enum name="solid_line" value="2" />
+        </attr>
+
+        <attr name="fantasticlayout_shader">
+            <enum name="linear" value="0" />
+            <enum name="radial" value="1" />
+            <enum name="sweep" value="2" />
+        </attr>
+
+        <attr name="fantasticlayout_stroke_cap">
             <enum name="butt" value="0" />
             <enum name="round" value="1" />
             <enum name="square" value="2" />
