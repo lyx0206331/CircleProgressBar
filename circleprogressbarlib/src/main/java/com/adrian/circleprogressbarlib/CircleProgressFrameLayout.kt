@@ -3,24 +3,19 @@ package com.adrian.circleprogressbarlib
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.os.Parcel
-import android.os.Parcelable
 import android.support.annotation.IntDef
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 
 /**
- * date:2018/8/27 11:43
- * author：RanQing
- * description：此控件带进度显示，可设置居中图片，可显示进度值，可选择进度样式，可选择动画效果，也可当按下时带进度的按钮使用
- * 在sdk版本27.1.1以下的版本中@IntDef内数据为long，在27.1.1及以上版本中@IntDef类型为int，为向下兼容较低版本的sdk，annotations库使用的版本为27.0.2
- */
-class CircleProgressBar : View {
+ * author:RanQing
+ * date:2018/9/1 0001 22:57
+ * description:继承自LinearLayout，可设置环形进度或者响应进度变化。响应自身布局触摸事件时，clickable需要设置为true
+ **/
+class CircleProgressFrameLayout : FrameLayout {
 
     companion object {
         const val DEFAULT_MAX = 100
@@ -47,31 +42,20 @@ class CircleProgressBar : View {
         const val DEFAULT_START_DEGREE = -90f
         const val DEFAULT_LINE_COUNT = 45
         const val DEFAULT_LINE_WIDTH = 4f
-        const val DEFAULT_PROGRESS_TEXT_SIZE = 21f
         const val DEFAULT_PROGRESS_STROKE_WIDTH = 1f
 
         const val COLOR_FFF2A670 = "#fff2a670"
         const val COLOR_FFD3D3D5 = "#ffe3e3e5"
     }
 
-    private val mProgressRectF = RectF()
-    private val mProgressTextRect = Rect()
-
-    private val mProgressPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mProgressBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val mProgressTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mProgressCenterPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mProgressPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mProgressRectF = RectF()
 
     private var mRadius = 0f
     private var mCenterX = 0f
     private var mCenterY = 0f
-
-    //是否显示进度值
-    var mShowValue: Boolean = true
-        set(value) {
-            field = value
-            invalidate()
-        }
 
     //进度
     var mProgress = 0
@@ -108,12 +92,7 @@ class CircleProgressBar : View {
             mProgressBackgroundPaint.strokeWidth = value
             invalidate()
         }
-    //进度条文字大小
-    var mProgressTextSize = 0f
-        set(value) {
-            field = value
-            invalidate()
-        }
+
     //进度条进度开始颜色
     var mProgressStartColor = Color.BLACK
         set(value) {
@@ -128,12 +107,7 @@ class CircleProgressBar : View {
             updateProgressShader()
             invalidate()
         }
-    //进度条文字颜色
-    var mProgressTextColor = Color.BLACK
-        set(value) {
-            field = value
-            invalidate()
-        }
+
     //进度条背景色
     var mProgressBackgroundColor = Color.WHITE
         set(value) {
@@ -162,19 +136,8 @@ class CircleProgressBar : View {
             field = value
             invalidate()
         }
-    //居中图片（仅在表盘式及线形进度中绘制，未在扇形进度中绘制）
-    var mCenterDrawable: Drawable? = null
-        set(value) {
-            field = value
-            invalidate()
-        }
-    //格式化进度值为特殊格式
-    var mProgressFormatter: ProgressFormatter = DefaultProgressFormatter()
-        set(value) {
-            field = value
-            invalidate()
-        }
-    //动画是否已停止,此判断防止重复响应停止接口方法
+
+    //动画是否已停止,此判断防止多次响应停止接口方法
     private var isStopedAnim = true
 
     @Retention(AnnotationRetention.SOURCE)
@@ -226,49 +189,39 @@ class CircleProgressBar : View {
     //进度条动画
     private var mAnimator: ValueAnimator? = null
 
-    //是否支持连续进度加载
-    var isContinuable: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                mAnimator?.repeatCount = 0
-            }
-        }
+    //是否关联响应子控件。即此值为true时按下子控件，进度条同步响应.此设置需要clickable值为true才有效
+    var isLinkChildTouchEvent = false
 
     @JvmOverloads
     constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         if (context == null) return
 
-        val a = context.obtainStyledAttributes(attrs, R.styleable.CircleProgressBar, defStyleAttr, 0)
+        val a = context.obtainStyledAttributes(attrs, R.styleable.CircleProgressLayout, defStyleAttr, 0)
 
-        mLineCount = a.getInt(R.styleable.CircleProgressBar_cpb_line_count, DEFAULT_LINE_COUNT)
-        mStopAnimType = a.getInt(R.styleable.CircleProgressBar_cpb_stop_anim_type, STOP_ANIM_SIMPLE.toInt()).toLong()
-        mStyle = a.getInt(R.styleable.CircleProgressBar_cpb_style, LINE.toInt()).toLong()
-        mShader = a.getInt(R.styleable.CircleProgressBar_cpb_shader, LINEAR.toInt()).toLong()
-        mCap = if (a.hasValue(R.styleable.CircleProgressBar_cpb_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.CircleProgressBar_cpb_stroke_cap, 0)] else Paint.Cap.BUTT
-        mLineWidth = a.getDimension(R.styleable.CircleProgressBar_cpb_line_width, Utils.dip2px(context, DEFAULT_LINE_WIDTH))
-        mProgressTextSize = a.getDimension(R.styleable.CircleProgressBar_cpb_text_size, DEFAULT_PROGRESS_TEXT_SIZE)
-        mProgressStrokeWidth = a.getDimension(R.styleable.CircleProgressBar_cpb_stroke_width, DEFAULT_PROGRESS_STROKE_WIDTH)
-        mProgressStartColor = a.getColor(R.styleable.CircleProgressBar_cpb_start_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressEndColor = a.getColor(R.styleable.CircleProgressBar_cpb_end_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressTextColor = a.getColor(R.styleable.CircleProgressBar_cpb_text_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressBackgroundColor = a.getColor(R.styleable.CircleProgressBar_cpb_background_color, Color.parseColor(COLOR_FFD3D3D5))
-        mStartDegree = a.getFloat(R.styleable.CircleProgressBar_cpb_start_degree, DEFAULT_START_DEGREE)
-        mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.CircleProgressBar_cpb_drawBackgroundOutsideProgress, false)
-        mCenterColor = a.getColor(R.styleable.CircleProgressBar_cpb_center_color, Color.TRANSPARENT)
-        mShowValue = a.getBoolean(R.styleable.CircleProgressBar_cpb_show_value, true)
-        mCenterDrawable = a.getDrawable(R.styleable.CircleProgressBar_cpb_center_src)
-        isContinuable = a.getBoolean(R.styleable.CircleProgressBar_cpb_continuable, false)
+        mLineCount = a.getInt(R.styleable.CircleProgressLayout_cpl_line_count, CircleProgressLinearLayout.DEFAULT_LINE_COUNT)
+        mStopAnimType = a.getInt(R.styleable.CircleProgressLayout_cpl_stop_anim_type, CircleProgressLinearLayout.STOP_ANIM_SIMPLE.toInt()).toLong()
+        mStyle = a.getInt(R.styleable.CircleProgressLayout_cpl_style, CircleProgressLinearLayout.LINE.toInt()).toLong()
+        mShader = a.getInt(R.styleable.CircleProgressLayout_cpl_shader, CircleProgressLinearLayout.LINEAR.toInt()).toLong()
+        mCap = if (a.hasValue(R.styleable.CircleProgressLayout_cpl_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.CircleProgressLayout_cpl_stroke_cap, 0)] else Paint.Cap.BUTT
+        mLineWidth = a.getDimension(R.styleable.CircleProgressLayout_cpl_line_width, Utils.dip2px(context, CircleProgressLinearLayout.DEFAULT_LINE_WIDTH))
+        mProgressStrokeWidth = a.getDimension(R.styleable.CircleProgressLayout_cpl_stroke_width, CircleProgressLinearLayout.DEFAULT_PROGRESS_STROKE_WIDTH)
+        mProgressStartColor = a.getColor(R.styleable.CircleProgressLayout_cpl_start_color, Color.parseColor(CircleProgressLinearLayout.COLOR_FFF2A670))
+        mProgressEndColor = a.getColor(R.styleable.CircleProgressLayout_cpl_end_color, Color.parseColor(CircleProgressLinearLayout.COLOR_FFF2A670))
+        mProgressBackgroundColor = a.getColor(R.styleable.CircleProgressLayout_cpl_background_color, Color.parseColor(CircleProgressLinearLayout.COLOR_FFD3D3D5))
+        mStartDegree = a.getFloat(R.styleable.CircleProgressLayout_cpl_start_degree, CircleProgressLinearLayout.DEFAULT_START_DEGREE)
+        mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.CircleProgressLayout_cpl_drawBackgroundOutsideProgress, false)
+        mCenterColor = a.getColor(R.styleable.CircleProgressLayout_cpl_center_color, Color.TRANSPARENT)
+        isLinkChildTouchEvent = a.getBoolean(R.styleable.CircleProgressLayout_cpl_isLinkChildTouchEvent, false)
 
         a.recycle()
 
         initPaint()
+
+        //必须加背景，不然显示不了动画
+        setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun initPaint() {
-        mProgressTextPaint.textAlign = Paint.Align.CENTER
-        mProgressTextPaint.textSize = mProgressTextSize
-
         mProgressPaint.style = if (mStyle == SOLID) Paint.Style.FILL else Paint.Style.STROKE
         mProgressPaint.strokeWidth = mProgressStrokeWidth
         mProgressPaint.color = mProgressStartColor
@@ -283,70 +236,31 @@ class CircleProgressBar : View {
         mProgressCenterPaint.color = mCenterColor
     }
 
-    /**
-     * 更新着色器
-     * 需要在onSizeChanged中执行{@link #onSizeChanged(int, int, int, int)}
-     */
-    private fun updateProgressShader() {
-        if (mProgressStartColor != mProgressEndColor) {
-            var shader: Shader? = null
-            when (mShader) {
-                LINEAR -> { //线性渐变
-                    shader = LinearGradient(mProgressRectF.left, mProgressRectF.top, mProgressRectF.left, mProgressRectF.bottom, mProgressStartColor, mProgressEndColor, Shader.TileMode.CLAMP)
-                    val matrix = Matrix()
-                    matrix.setRotate(LINEAR_START_DEGREE, mCenterX, mCenterY)
-                    shader.getLocalMatrix(matrix)
-                }
-                RADIAL -> { //径向渐变
-                    if (mRadius <= 0) return
-                    shader = RadialGradient(mCenterX, mCenterY, mRadius, mProgressStartColor, mProgressEndColor, Shader.TileMode.CLAMP)
-                }
-                SWEEP -> {  //扫描渐变
-                    if (mRadius <= 0) return
-                    val radian = mProgressStrokeWidth / Math.PI * 2f / mRadius
-                    val rotateDegrees: Float = -(if (mCap == Paint.Cap.BUTT && mStyle == SOLID_LINE) 0f else Math.toDegrees(radian).toFloat())
-                    shader = SweepGradient(mCenterX, mCenterY, intArrayOf(mProgressStartColor, mProgressEndColor), floatArrayOf(0f, 1f))
-                    val matrix = Matrix()
-                    matrix.setRotate(rotateDegrees, mCenterX, mCenterY)
-                    shader.setLocalMatrix(matrix)
-                }
-            }
-            mProgressPaint.shader = shader
-        } else {    //无渐变
-            mProgressPaint.shader = null
-            mProgressPaint.color = mProgressStartColor
-        }
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        mCenterX = w / 2f
+        mCenterY = h / 2f
+
+        mRadius = Math.min(mCenterX, mCenterY)
+        mProgressRectF.top = mCenterY - mRadius
+        mProgressRectF.bottom = mCenterY + mRadius
+        mProgressRectF.left = mCenterX - mRadius
+        mProgressRectF.right = mCenterX + mRadius
+
+        updateProgressShader()
+
+        //防止进度条被裁剪
+        mProgressRectF.inset(mProgressStrokeWidth / 2, mProgressStrokeWidth / 2)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-
         canvas?.save()
         canvas?.rotate(mStartDegree, mCenterX, mCenterY)
         drawProgress(canvas)
         canvas?.restore()
 
         drawCenterColor(canvas)
-
-        drawCenterDrawable(canvas)
-
-        drawProgressText(canvas)
-    }
-
-    /**
-     * 绘制进度值
-     */
-    private fun drawProgressText(canvas: Canvas?) {
-        if (mProgressFormatter == null || !mShowValue) return
-
-        val progressText = mProgressFormatter.format(mProgress, mMax)
-
-        if (TextUtils.isEmpty(progressText)) return
-
-        mProgressTextPaint.textSize = mProgressTextSize
-        mProgressTextPaint.color = mProgressTextColor
-        mProgressTextPaint.getTextBounds(progressText.toString(), 0, progressText.length, mProgressTextRect)
-        canvas?.drawText(progressText, 0, progressText.length, mCenterX, mCenterY + mProgressTextRect.height() / 2, mProgressTextPaint)
     }
 
     /**
@@ -355,28 +269,6 @@ class CircleProgressBar : View {
     private fun drawCenterColor(canvas: Canvas?) {
         if (mStyle == LINE || mStyle == SOLID_LINE) {
             canvas?.drawCircle(mCenterX, mCenterY, mRadius - mProgressStrokeWidth, mProgressCenterPaint)
-        }
-    }
-
-    /**
-     * 绘制居中图片
-     */
-    private fun drawCenterDrawable(canvas: Canvas?) {
-        try {
-            if ((mStyle == LINE || mStyle == SOLID_LINE) && mCenterDrawable != null) {
-                val bmp: Bitmap = (mCenterDrawable as BitmapDrawable).bitmap
-                val bmpWidth = bmp.width
-                val bmpHeight = bmp.height
-                val bmpRect = Rect(0, 0, bmpWidth, bmpHeight)
-                val desLeft: Int = (mCenterX - bmpWidth / 2 + mProgressStrokeWidth).toInt()
-                val desTop: Int = (mCenterY - bmpHeight / 2 + mProgressStrokeWidth).toInt()
-                val desRight: Int = (mCenterX + bmpWidth / 2 - mProgressStrokeWidth).toInt()
-                val desBottom: Int = (mCenterX + bmpWidth / 2 - mProgressStrokeWidth).toInt()
-                val desRect = Rect(desLeft, desTop, desRight, desBottom)
-                canvas?.drawBitmap(bmp, bmpRect, desRect, mProgressCenterPaint)
-            }
-        } catch (e: Exception) {
-            Utils.logE("CircleProgressBar", "Exception:${e.message}")
         }
     }
 
@@ -445,24 +337,44 @@ class CircleProgressBar : View {
         } else {
             canvas?.drawArc(mProgressRectF, 0f, MAX_DEGREE, false, mProgressBackgroundPaint)
         }
-        canvas?.drawArc(mProgressRectF, 0f, MAX_DEGREE * mProgress / mMax, false, mProgressPaint)
+        val sweepAngle = MAX_DEGREE * mProgress / mMax
+        Log.e("FantasticLL", "sweepAngle:$sweepAngle")
+        canvas?.drawArc(mProgressRectF, 0f, sweepAngle, false, mProgressPaint)
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        mCenterX = w / 2f
-        mCenterY = h / 2f
-
-        mRadius = Math.min(mCenterX, mCenterY)
-        mProgressRectF.top = mCenterY - mRadius
-        mProgressRectF.bottom = mCenterY + mRadius
-        mProgressRectF.left = mCenterX - mRadius
-        mProgressRectF.right = mCenterX + mRadius
-
-        updateProgressShader()
-
-        //防止进度条被裁剪
-        mProgressRectF.inset(mProgressStrokeWidth / 2, mProgressStrokeWidth / 2)
+    /**
+     * 更新着色器
+     * 需要在onSizeChanged中执行{@link #onSizeChanged(int, int, int, int)}
+     */
+    private fun updateProgressShader() {
+        if (mProgressStartColor != mProgressEndColor) {
+            var shader: Shader? = null
+            when (mShader) {
+                LINEAR -> { //线性渐变
+                    shader = LinearGradient(mProgressRectF.left, mProgressRectF.top, mProgressRectF.left, mProgressRectF.bottom, mProgressStartColor, mProgressEndColor, Shader.TileMode.CLAMP)
+                    val matrix = Matrix()
+                    matrix.setRotate(LINEAR_START_DEGREE, mCenterX, mCenterY)
+                    shader.getLocalMatrix(matrix)
+                }
+                RADIAL -> { //径向渐变
+                    if (mRadius <= 0) return
+                    shader = RadialGradient(mCenterX, mCenterY, mRadius, mProgressStartColor, mProgressEndColor, Shader.TileMode.CLAMP)
+                }
+                SWEEP -> {  //扫描渐变
+                    if (mRadius <= 0) return
+                    val radian = mProgressStrokeWidth / Math.PI * 2f / mRadius
+                    val rotateDegrees: Float = -(if (mCap == Paint.Cap.BUTT && mStyle == SOLID_LINE) 0f else Math.toDegrees(radian).toFloat())
+                    shader = SweepGradient(mCenterX, mCenterY, intArrayOf(mProgressStartColor, mProgressEndColor), floatArrayOf(0f, 1f))
+                    val matrix = Matrix()
+                    matrix.setRotate(rotateDegrees, mCenterX, mCenterY)
+                    shader.setLocalMatrix(matrix)
+                }
+            }
+            mProgressPaint.shader = shader
+        } else {    //无渐变
+            mProgressPaint.shader = null
+            mProgressPaint.color = mProgressStartColor
+        }
     }
 
     /**
@@ -482,17 +394,12 @@ class CircleProgressBar : View {
                 if (mProgress == end && !isStopedAnim) {
                     mOnPressedListener?.onPressEnd()
                     isStopedAnim = true
-                    mAnimator?.cancel()
                 }
             }
         }
-        val s = if (isContinuable) { if (mProgress >= mMax) 0 else mProgress } else if (start < 0) 0 else if (start > mMax) mMax else start
-        val e = if (end > mMax) mMax else if (end < 0) 0 else end
-        mAnimator?.setIntValues(s, e)
-        if (mProgress == 0) {
-            mAnimator?.duration = duration
-            mAnimator?.repeatCount = if (isContinuable) 0 else repeatCount
-        }
+        mAnimator?.setIntValues(if (start < 0) 0 else start, if (end > mMax) mMax else end)
+        mAnimator?.duration = duration
+        mAnimator?.repeatCount = repeatCount
         mAnimator?.start()
 
         mOnPressedListener?.onPressStart()
@@ -503,26 +410,29 @@ class CircleProgressBar : View {
      * 停止动画
      */
     fun stopAnimator() {
-        if (mAnimator != null && mAnimator!!.isRunning && !isStopedAnim) {
+        if (mAnimator != null && mAnimator!!.isRunning) {
             if (!isStopedAnim) {
                 mOnPressedListener?.onPressInterrupt(mAnimator!!.animatedValue as Int)
                 isStopedAnim = true
             }
-            if (isContinuable) {
+            if (mStopAnimType == STOP_ANIM_SIMPLE) {    //直接停止动画并恢复到进度0
                 mAnimator?.cancel()
-            } else {
-                if (mStopAnimType == STOP_ANIM_SIMPLE) {    //直接停止动画并恢复到进度0
-                    mAnimator?.cancel()
-                    mProgress = 0
-                } else {    //动画回退到进度0
-                    mAnimator?.reverse()
-                }
+                mProgress = 0
+            } else {    //动画回退到进度0
+                mAnimator?.reverse()
             }
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event == null || !isClickable) return true
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null || !isClickable) return super.dispatchTouchEvent(event)
+        if (isLinkChildTouchEvent) {
+            executeAnim(event)
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
+    private fun executeAnim(event: MotionEvent) {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 startAnimator()
@@ -539,18 +449,21 @@ class CircleProgressBar : View {
                 stopAnimator()
             }
         }
-        return super.onTouchEvent(event)
     }
 
     /**
      * 触摸点是否在控件范围内
      */
-    fun isValid(touchX: Float, touchY: Float): Boolean {
+    private fun isValid(touchX: Float, touchY: Float): Boolean {
         return touchX >= 0 && touchX <= width && touchY >= 0 && touchY <= height
     }
 
-    private fun logE(msg: String) {
-        Log.e("CircleProgressBar", msg)
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null || !isClickable) return super.onTouchEvent(event)
+        if (!isLinkChildTouchEvent) {
+            executeAnim(event)
+        }
+        return super.onTouchEvent(event)
     }
 
     interface OnPressedListener {
@@ -566,62 +479,4 @@ class CircleProgressBar : View {
         //结束按下响应
         fun onPressEnd()
     }
-
-    interface ProgressFormatter {
-        fun format(progress: Int, max: Int): CharSequence
-    }
-
-    class DefaultProgressFormatter : ProgressFormatter {
-        private val defaultPattern = "%d%%"
-
-        override fun format(progress: Int, max: Int): CharSequence {
-            return java.lang.String.format(defaultPattern, (progress.toFloat() / max.toFloat() * 100).toInt())
-        }
-
-    }
-
-    class SavedState : BaseSavedState {
-
-        var progress = 0
-
-        constructor(source: Parcelable) : super(source)
-        constructor(source: Parcel) : super(source) {
-            progress = source.readInt()
-        }
-
-        override fun writeToParcel(out: Parcel?, flags: Int) {
-            super.writeToParcel(out, flags)
-            out?.writeInt(progress)
-        }
-
-        companion object CREATOR : Parcelable.Creator<SavedState> {
-            override fun createFromParcel(parcel: Parcel): SavedState {
-                return SavedState(parcel)
-            }
-
-            override fun newArray(size: Int): Array<SavedState?> {
-                return arrayOfNulls(size)
-            }
-
-        }
-
-    }
-
-    override fun onSaveInstanceState(): Parcelable? {
-        //强制保存祖先类状态
-        val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
-
-        ss.progress = mProgress
-
-        return ss
-    }
-
-    override fun onRestoreInstanceState(state: Parcelable?) {
-        val ss: SavedState = state as SavedState
-        super.onRestoreInstanceState(ss.superState)
-
-        mProgress = ss.progress
-    }
-
 }

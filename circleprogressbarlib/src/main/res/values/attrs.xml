@@ -40,34 +40,35 @@
 
     </declare-styleable>
 
-    <declare-styleable name="FantasticLayout">
-        <attr name="fantasticlayout_line_count" format="integer|reference" />
-        <attr name="fantasticlayout_line_width" format="dimension|reference" />
-        <attr name="fantasticlayout_start_color" format="color|reference" />
-        <attr name="fantasticlayout_end_color" format="color|reference" />
-        <attr name="fantasticlayout_stroke_width" format="dimension|reference" />
-        <attr name="fantasticlayout_background_color" format="color|reference" />
-        <attr name="fantasticlayout_start_degree" format="float|reference" />
-        <attr name="fantasticlayout_drawBackgroundOutsideProgress" format="boolean|reference" />
-        <attr name="fantasticlayout_center_color" format="color|reference" />
-        <attr name="fantasticlayout_stop_anim_type">
+    <declare-styleable name="CircleProgressLayout">
+        <attr name="cpl_line_count" format="integer|reference" />
+        <attr name="cpl_line_width" format="dimension|reference" />
+        <attr name="cpl_start_color" format="color|reference" />
+        <attr name="cpl_end_color" format="color|reference" />
+        <attr name="cpl_stroke_width" format="dimension|reference" />
+        <attr name="cpl_background_color" format="color|reference" />
+        <attr name="cpl_start_degree" format="float|reference" />
+        <attr name="cpl_drawBackgroundOutsideProgress" format="boolean|reference" />
+        <attr name="cpl_center_color" format="color|reference" />
+        <attr name="cpl_isLinkChildTouchEvent" format="boolean|reference" />
+        <attr name="cpl_stop_anim_type">
             <enum name="simple_stop" value="0" />
             <enum name="reverse_stop" value="1" />
         </attr>
 
-        <attr name="fantasticlayout_style">
+        <attr name="cpl_style">
             <enum name="line" value="0" />
             <enum name="solid" value="1" />
             <enum name="solid_line" value="2" />
         </attr>
 
-        <attr name="fantasticlayout_shader">
+        <attr name="cpl_shader">
             <enum name="linear" value="0" />
             <enum name="radial" value="1" />
             <enum name="sweep" value="2" />
         </attr>
 
-        <attr name="fantasticlayout_stroke_cap">
+        <attr name="cpl_stroke_cap">
             <enum name="butt" value="0" />
             <enum name="round" value="1" />
             <enum name="square" value="2" />

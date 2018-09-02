@@ -9,6 +9,7 @@ import android.view.MotionEvent
 import android.widget.Button
 import android.widget.Toast
 import com.adrian.circleprogressbarlib.CircleProgressBar
+import com.adrian.circleprogressbarlib.CircleProgressFrameLayout
 import com.adrian.circleprogressbarlib.CircleProgressLinearLayout
 import com.adrian.circleprogressbarlib.Utils
 import kotlinx.android.synthetic.main.activity_main.*
@@ -90,16 +91,16 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        fantastic_btn.mStyle = CircleProgressBar.SOLID_LINE
-        fantastic_btn.mProgressStrokeWidth = Utils.dip2px(this, 3f)
-        fantastic_btn.mProgressBackgroundColor = ContextCompat.getColor(this, R.color.holo_purple)
-        fantastic_btn.mStopAnimType = CircleProgressBar.STOP_ANIM_REVERSE
-        fantastic_btn.mCenterColor = ContextCompat.getColor(this, R.color.holo_blue_light)
-        fantastic_btn.mProgressStartColor = ContextCompat.getColor(this, R.color.colorAccent)
-        fantastic_btn.mProgressEndColor = ContextCompat.getColor(this, R.color.holo_orange_light)
-        fantastic_btn.mShader = CircleProgressBar.LINEAR
+        cpfl.mStyle = CircleProgressBar.SOLID_LINE
+        cpfl.mProgressStrokeWidth = Utils.dip2px(this, 3f)
+        cpfl.mProgressBackgroundColor = ContextCompat.getColor(this, R.color.holo_purple)
+        cpfl.mStopAnimType = CircleProgressBar.STOP_ANIM_REVERSE
+        cpfl.mCenterColor = ContextCompat.getColor(this, R.color.holo_blue_light)
+        cpfl.mProgressStartColor = ContextCompat.getColor(this, R.color.colorAccent)
+        cpfl.mProgressEndColor = ContextCompat.getColor(this, R.color.holo_orange_light)
+        cpfl.mShader = CircleProgressBar.LINEAR
 
-        fantastic_btn.mOnPressedListener = object : CircleProgressBar.OnPressedListener {
+        cpfl.mOnPressedListener = object : CircleProgressFrameLayout.OnPressedListener {
             override fun onPressEnd() {
                 toast("press end")
             }
@@ -127,7 +128,7 @@ class MainActivity : AppCompatActivity() {
             }
             super.onTouchEvent(motionEvent)
         }
-        fantastic_btn.setCenterView(centerView)
+        cpfl.addView(centerView)
 
         cpll.mOnPressedListener = object : CircleProgressLinearLayout.OnPressedListener {
             override fun onPressEnd() {
@@ -151,7 +152,6 @@ class MainActivity : AppCompatActivity() {
                 btnCenter.text = "interrupt"
             }
         }
-        cpll.isLinkChildTouchEvent = false
         btnCenter.setOnTouchListener { v, event ->
             when(event.action) {
                 MotionEvent.ACTION_DOWN -> (v as Button).text = "Down"

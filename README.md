@@ -4,7 +4,8 @@
 v0.0.6更新：
 1. CircleProgressBar作响应按下操作按钮使用时，如果手势移出控件范围，自动中断按下响应
 2. CircleProgressBar作响应按下操作按钮使用时，支持连续进度
-3. 新增基于Linearlayout的子布局CircleProgressLinearLayout，布局带环形进度条
+3. 新增基于LinearLayout的子布局CircleProgressLinearLayout，布局带环形进度条
+3. 新增基于FrameLayout的子布局CircleProgressFrameLayout，布局带环形进度条
 
 使用方法：
 
@@ -19,6 +20,6 @@ Step 1. Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.5'
+	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.6'
 	}
 

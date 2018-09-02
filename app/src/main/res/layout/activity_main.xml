@@ -155,11 +155,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <com.adrian.circleprogressbarlib.FantasticButton
-            android:id="@+id/fantastic_btn"
+        <com.adrian.circleprogressbarlib.CircleProgressFrameLayout
+            android:id="@+id/cpfl"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_margin="@dimen/default_margin" />
+            android:layout_margin="@dimen/default_margin"
+            android:clickable="true" />
 
         <com.adrian.circleprogressbarlib.CircleProgressLinearLayout
             android:id="@+id/cpll"
@@ -168,14 +169,15 @@
             android:layout_margin="@dimen/default_margin"
             android:gravity="center"
             android:orientation="vertical"
-            android:clickable="false"
-            app:fantasticlayout_background_color="@android:color/transparent"
-            app:fantasticlayout_end_color="@color/holo_green_light"
-            app:fantasticlayout_start_color="@color/holo_red_light"
-            app:fantasticlayout_stroke_width="3dp"
-            app:fantasticlayout_center_color="@color/holo_blue_dark"
-            app:fantasticlayout_style="solid_line"
-            app:fantasticlayout_stop_anim_type="reverse_stop">
+            android:clickable="true"
+            app:cpl_background_color="@android:color/transparent"
+            app:cpl_end_color="@color/holo_green_light"
+            app:cpl_start_color="@color/holo_red_light"
+            app:cpl_stroke_width="3dp"
+            app:cpl_center_color="@color/holo_blue_dark"
+            app:cpl_style="solid_line"
+            app:cpl_stop_anim_type="reverse_stop"
+            app:cpl_isLinkChildTouchEvent="true">
             <TextView
                 android:id="@+id/tvCenter"
                 android:layout_width="wrap_content"

@@ -188,28 +188,29 @@ class CircleProgressLinearLayout: LinearLayout {
     //进度条动画
     private var mAnimator: ValueAnimator? = null
 
-    //是否关联响应子控件。即此值为true时按下子控件，进度条同步响应
+    //是否关联响应子控件。即此值为true时按下子控件，进度条同步响应.此设置需要clickable值为true才有效
     var isLinkChildTouchEvent = false
 
     @JvmOverloads
     constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr) {
         if (context == null) return
 
-        val a = context.obtainStyledAttributes(attrs, R.styleable.FantasticLayout, defStyleAttr, 0)
+        val a = context.obtainStyledAttributes(attrs, R.styleable.CircleProgressLayout, defStyleAttr, 0)
 
-        mLineCount = a.getInt(R.styleable.FantasticLayout_fantasticlayout_line_count, DEFAULT_LINE_COUNT)
-        mStopAnimType = a.getInt(R.styleable.FantasticLayout_fantasticlayout_stop_anim_type, STOP_ANIM_SIMPLE.toInt()).toLong()
-        mStyle = a.getInt(R.styleable.FantasticLayout_fantasticlayout_style, LINE.toInt()).toLong()
-        mShader = a.getInt(R.styleable.FantasticLayout_fantasticlayout_shader, LINEAR.toInt()).toLong()
-        mCap = if (a.hasValue(R.styleable.FantasticLayout_fantasticlayout_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.FantasticLayout_fantasticlayout_stroke_cap, 0)] else Paint.Cap.BUTT
-        mLineWidth = a.getDimension(R.styleable.FantasticLayout_fantasticlayout_line_width, Utils.dip2px(context, DEFAULT_LINE_WIDTH))
-        mProgressStrokeWidth = a.getDimension(R.styleable.FantasticLayout_fantasticlayout_stroke_width, DEFAULT_PROGRESS_STROKE_WIDTH)
-        mProgressStartColor = a.getColor(R.styleable.FantasticLayout_fantasticlayout_start_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressEndColor = a.getColor(R.styleable.FantasticLayout_fantasticlayout_end_color, Color.parseColor(COLOR_FFF2A670))
-        mProgressBackgroundColor = a.getColor(R.styleable.FantasticLayout_fantasticlayout_background_color, Color.parseColor(COLOR_FFD3D3D5))
-        mStartDegree = a.getFloat(R.styleable.FantasticLayout_fantasticlayout_start_degree, DEFAULT_START_DEGREE)
-        mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.FantasticLayout_fantasticlayout_drawBackgroundOutsideProgress, false)
-        mCenterColor = a.getColor(R.styleable.FantasticLayout_fantasticlayout_center_color, Color.TRANSPARENT)
+        mLineCount = a.getInt(R.styleable.CircleProgressLayout_cpl_line_count, DEFAULT_LINE_COUNT)
+        mStopAnimType = a.getInt(R.styleable.CircleProgressLayout_cpl_stop_anim_type, STOP_ANIM_SIMPLE.toInt()).toLong()
+        mStyle = a.getInt(R.styleable.CircleProgressLayout_cpl_style, LINE.toInt()).toLong()
+        mShader = a.getInt(R.styleable.CircleProgressLayout_cpl_shader, LINEAR.toInt()).toLong()
+        mCap = if (a.hasValue(R.styleable.CircleProgressLayout_cpl_stroke_cap)) Paint.Cap.values()[a.getInt(R.styleable.CircleProgressLayout_cpl_stroke_cap, 0)] else Paint.Cap.BUTT
+        mLineWidth = a.getDimension(R.styleable.CircleProgressLayout_cpl_line_width, Utils.dip2px(context, DEFAULT_LINE_WIDTH))
+        mProgressStrokeWidth = a.getDimension(R.styleable.CircleProgressLayout_cpl_stroke_width, DEFAULT_PROGRESS_STROKE_WIDTH)
+        mProgressStartColor = a.getColor(R.styleable.CircleProgressLayout_cpl_start_color, Color.parseColor(COLOR_FFF2A670))
+        mProgressEndColor = a.getColor(R.styleable.CircleProgressLayout_cpl_end_color, Color.parseColor(COLOR_FFF2A670))
+        mProgressBackgroundColor = a.getColor(R.styleable.CircleProgressLayout_cpl_background_color, Color.parseColor(COLOR_FFD3D3D5))
+        mStartDegree = a.getFloat(R.styleable.CircleProgressLayout_cpl_start_degree, DEFAULT_START_DEGREE)
+        mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.CircleProgressLayout_cpl_drawBackgroundOutsideProgress, false)
+        mCenterColor = a.getColor(R.styleable.CircleProgressLayout_cpl_center_color, Color.TRANSPARENT)
+        isLinkChildTouchEvent = a.getBoolean(R.styleable.CircleProgressLayout_cpl_isLinkChildTouchEvent, false)
 
         a.recycle()
 
@@ -386,16 +387,16 @@ class CircleProgressLinearLayout: LinearLayout {
     fun startAnimator(duration: Long = 1000, start: Int = 0, end: Int = mMax, repeatCount: Int = 0) {
         if (mAnimator == null) {
             mAnimator = ValueAnimator()
-        }
-        mAnimator?.setIntValues(if (start < 0) 0 else start, if (end > mMax) mMax else end)
-        mAnimator?.addUpdateListener {
-            mProgress = it.animatedValue as Int
-            mOnPressedListener?.onPressProcess(mProgress)
-            if (mProgress == end && !isStopedAnim) {
-                mOnPressedListener?.onPressEnd()
-                isStopedAnim = true
+            mAnimator?.addUpdateListener {
+                mProgress = it.animatedValue as Int
+                mOnPressedListener?.onPressProcess(mProgress)
+                if (mProgress == end && !isStopedAnim) {
+                    mOnPressedListener?.onPressEnd()
+                    isStopedAnim = true
+                }
             }
         }
+        mAnimator?.setIntValues(if (start < 0) 0 else start, if (end > mMax) mMax else end)
         mAnimator?.duration = duration
         mAnimator?.repeatCount = repeatCount
         mAnimator?.start()
