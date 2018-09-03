@@ -1,8 +1,7 @@
 # CircleProgressBar
 简单环形进度条实现，带进度显示，可设置居中图片，可显示进度值，可选择进度样式，可选择动画效果，也可当按下时带进度的按钮使用
 
-如图：
-    ![image](https://github.com/lyx0206331/CircleProgressBar/blob/master/previews/screenshot_0.png?raw=true)
+![image](https://github.com/lyx0206331/CircleProgressBar/blob/master/previews/screenshot_0.png?raw=true)
 
 v0.0.6更新：
 1. CircleProgressBar作响应按下操作按钮使用时，如果手势移出控件范围，自动中断按下响应
