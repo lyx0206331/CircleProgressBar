@@ -101,7 +101,7 @@ cpb_style | enum(line,solid,solid_line) | 进度样式(line为刻度样式,solid
 cpb_shader | enum(linear,radial,sweep) | 渐变样式(linear为线性渐变,radial为径向渐变,sweep为扫描式渐变)
 cpb_stroke_cap | enum(butt,round,square) | 线条进度起止位置样式(butt为无样式,round为圆形样式,square为方形样式)
 
-CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除中间数值显示及进度持续累加功能，新增子控件关联响应，参数前缀cpb改为cpl。区别如下：
+CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除中间数值显示及进度持续累加功能，新增子控件关联响应，参数前缀*cpb*改为*cpl*。区别如下：
 
 名称 | 类型 | 说明
 ------ | ----- | -----
