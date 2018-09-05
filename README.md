@@ -80,7 +80,7 @@ xml布局文件中如下：
 
 参数说明:  
 
-参数名称 | 参数类型 | 参数说明
+名称 | 类型 | 说明
 ------------ | ------------- | -------------
 cpb_line_count | intege/reference | 刻度圆环时刻度数量
 cpb_line_width | dimension/reference | 刻度圆环时刻度宽度
@@ -94,3 +94,20 @@ cpb_start_degree | float/reference | 进度条起始角度
 cpb_drawBackgroundOutsideProgress | boolean/reference | 进度条是否渐隐形式
 cpb_center_src | reference | 居中图片
 cpb_center_color | color/reference | 居中颜色
+cpb_show_value | boolean|reference | 是否显示居中数值
+cpb_continuable | boolean|reference | 进度是否持续累加
+cpb_stop_anim_type | enum(simple_stop,reverse_stop) | 非累加进度时的终止动画(simple_stop表示直接回到进度0，reverse_stop表示依次递减到0)
+cpb_style | enum(line,solid,solid_line) | 进度样式(line为刻度样式,solid为实心样式,solid_line为线条样式)
+cpb_shader | enum(linear,radial,sweep) | 渐变样式(linear为线性渐变,radial为径向渐变,sweep为扫描式渐变)
+cpb_stroke_cap | enum(butt,round,square) | 线条进度起止位置样式(butt为无样式,round为圆形样式,square为方形样式)
+
+CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除中间数值显示及进度持续累加功能，新增子控件关联响应，参数前缀cpb改为cpl。区别如下：
+
+名称 | 类型 | 说明
+------ | ----- | -----
+~~cpb_text_color~~ | color/reference | 居中文本颜色
+~~cpb_text_size~~ | dimension/reference | 居中文本大小
+~~cpb_center_src~~ | reference | 居中图片
+~~cpb_show_value~~ | boolean/reference | 是否显示居中数值
+~~cpb_continuable~~ | boolean/reference | 进度是否持续累加
+cpl_isLinkChildTouchEvent | boolean/reference | 是否关联子控件触摸事件
