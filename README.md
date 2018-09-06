@@ -78,6 +78,45 @@ xml布局文件中如下：
 </com.adrian.circleprogressbarlib.CircleProgressLinearLayout>  
 ```
 
+Activity中使用如下：  
+非按下响应时，动画调用:  
+```Kotlin
+ mCustomProgressBar6?.startAnimator(4000, 20, 80, ValueAnimator.INFINITE)
+ 或
+ mCustomProgressBar6?.startAnimator()
+```
+
+格式化居中数值显示:  
+```Kotlin
+continuable_progress5.mProgressFormatter = object : CircleProgressBar.ProgressFormatter {
+            override fun format(progress: Int, max: Int): CharSequence {
+                return "${progress}c"
+            }
+
+        }
+```
+按下响应:  
+```Kotlin
+continuable_progress5.mOnPressedListener = object : CircleProgressBar.OnPressedListener {
+            override fun onPressEnd() {
+                toast("press end")
+            }
+
+            override fun onPressStart() {
+                toast("press start")
+            }
+
+            override fun onPressProcess(progress: Int) {
+//                Utils.logE("PROGRESS", "progress: $progress")
+            }
+
+            override fun onPressInterrupt(progress: Int) {
+                toast("press interrupt: $progress")
+            }
+
+        }
+```
+
 参数说明:  
 
 名称 | 类型 | 说明
