@@ -222,6 +222,8 @@ class CircleProgressBar : View {
 
     //按下监听
     var mOnPressedListener: OnPressedListener? = null
+    //对外提供画布操作
+    var mCenterProvider: ICenterCanvasProvider? = null
 
     //进度条动画
     private var mAnimator: ValueAnimator? = null
@@ -331,6 +333,8 @@ class CircleProgressBar : View {
         drawCenterDrawable(canvas)
 
         drawProgressText(canvas)
+
+        mCenterProvider?.provideCanvas(canvas)
     }
 
     /**
@@ -569,6 +573,10 @@ class CircleProgressBar : View {
 
     interface ProgressFormatter {
         fun format(progress: Int, max: Int): CharSequence
+    }
+
+    interface ICenterCanvasProvider {
+        fun provideCanvas(canvas: Canvas?)
     }
 
     class DefaultProgressFormatter : ProgressFormatter {
