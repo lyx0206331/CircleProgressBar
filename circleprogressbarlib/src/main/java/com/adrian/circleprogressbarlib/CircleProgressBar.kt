@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.annotation.ColorInt
 import android.support.annotation.IntDef
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -124,6 +125,7 @@ class CircleProgressBar : View {
             invalidate()
         }
     //进度条进度开始颜色
+    @ColorInt
     var mProgressStartColor = Color.BLACK
         set(value) {
             field = value
@@ -131,6 +133,7 @@ class CircleProgressBar : View {
             invalidate()
         }
     //进度条进度结束颜色
+    @ColorInt
     var mProgressEndColor = Color.BLACK
         set(value) {
             field = value
@@ -138,12 +141,14 @@ class CircleProgressBar : View {
             invalidate()
         }
     //进度条文字颜色
+    @ColorInt
     var mProgressTextColor = Color.BLACK
         set(value) {
             field = value
             invalidate()
         }
     //进度条背景色
+    @ColorInt
     var mProgressBackgroundColor = Color.WHITE
         set(value) {
             field = value
@@ -152,6 +157,7 @@ class CircleProgressBar : View {
         }
 
     //控件中间填充色（仅表盘式及线形进度有效，扇形未填充）
+    @ColorInt
     var mCenterColor: Int = Color.TRANSPARENT
         set(value) {
             field = value
@@ -585,10 +591,6 @@ class CircleProgressBar : View {
         fun format(progress: Int, max: Int): CharSequence
     }
 
-    interface ICanvasProvider {
-        fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?)
-    }
-
     class DefaultProgressFormatter : ProgressFormatter {
         private val defaultPattern = "%d%%"
 
@@ -596,6 +598,10 @@ class CircleProgressBar : View {
             return java.lang.String.format(defaultPattern, (progress.toFloat() / max.toFloat() * 100).toInt())
         }
 
+    }
+
+    interface ICanvasProvider {
+        fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?)
     }
 
     class SavedState : BaseSavedState {
