@@ -6,6 +6,8 @@
 
 v0.0.7更新：
 - 修正部分bug
+- CircleProgressBar对外提供画布接口，开发者可自行定义绘制内容
+- CircleProgressLinearLayout及CircleProgressFrameLayout布局支持连续进度
 
 v0.0.6更新：
 - CircleProgressBar作响应按下操作按钮使用时，如果手势移出控件范围，自动中断按下响应
@@ -26,7 +28,7 @@ Step 1. Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.6'
+	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.7'
 	}
 
 
@@ -153,3 +155,11 @@ CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除�
 ~~cpb_center_src~~ | reference | 居中图片
 ~~cpb_show_value~~ | boolean/reference | 是否显示居中数值
 cpl_isLinkChildTouchEvent | boolean/reference | 是否关联子控件触摸事件
+
+对外画布接口使用：
+continuable_progress5.mCanvasProvider = object : CircleProgressBar.ICanvasProvider {
+            override fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?) {
+                //自定义绘制内容
+            }
+        }
+continuable_progress5.invalidate()  //需要主动刷新
