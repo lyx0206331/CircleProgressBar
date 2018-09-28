@@ -123,6 +123,15 @@ continuable_progress5.mOnPressedListener = object : CircleProgressBar.OnPressedL
 
         }
 ```
+对外画布接口使用：  
+```Kotlin
+continuable_progress5.mCanvasProvider = object : CircleProgressBar.ICanvasProvider {  
+            override fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?) {  
+                //自定义绘制内容  
+            }  
+        }  
+continuable_progress5.invalidate()  //需要主动刷新
+```
 
 参数说明:  
 
@@ -157,13 +166,5 @@ CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除�
 ~~cpb_show_value~~ | boolean/reference | 是否显示居中数值
 cpl_isLinkChildTouchEvent | boolean/reference | 是否关联子控件触摸事件
 
-对外画布接口使用：  
-```Kotlin
-continuable_progress5.mCanvasProvider = object : CircleProgressBar.ICanvasProvider {  
-            override fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?) {  
-                //自定义绘制内容  
-            }  
-        }  
-continuable_progress5.invalidate()  //需要主动刷新
-```
+
 
