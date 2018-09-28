@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.annotation.ColorInt
 import android.support.annotation.IntDef
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -52,10 +53,19 @@ class CircleProgressBar : View {
 
         const val COLOR_FFF2A670 = "#fff2a670"
         const val COLOR_FFD3D3D5 = "#ffe3e3e5"
+
+        /**
+         * 获取文字边界
+         */
+        fun getTextBounds(text: String, paint: Paint): Rect {
+            val rect = Rect()
+            paint.getTextBounds(text, 0, text.length, rect)
+            return rect
+        }
     }
 
     private val mProgressRectF = RectF()
-    private val mProgressTextRect = Rect()
+    private var mProgressTextRect = Rect()
 
     private val mProgressPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mProgressBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -115,6 +125,7 @@ class CircleProgressBar : View {
             invalidate()
         }
     //进度条进度开始颜色
+    @ColorInt
     var mProgressStartColor = Color.BLACK
         set(value) {
             field = value
@@ -122,6 +133,7 @@ class CircleProgressBar : View {
             invalidate()
         }
     //进度条进度结束颜色
+    @ColorInt
     var mProgressEndColor = Color.BLACK
         set(value) {
             field = value
@@ -129,12 +141,14 @@ class CircleProgressBar : View {
             invalidate()
         }
     //进度条文字颜色
+    @ColorInt
     var mProgressTextColor = Color.BLACK
         set(value) {
             field = value
             invalidate()
         }
     //进度条背景色
+    @ColorInt
     var mProgressBackgroundColor = Color.WHITE
         set(value) {
             field = value
@@ -143,6 +157,7 @@ class CircleProgressBar : View {
         }
 
     //控件中间填充色（仅表盘式及线形进度有效，扇形未填充）
+    @ColorInt
     var mCenterColor: Int = Color.TRANSPARENT
         set(value) {
             field = value
@@ -222,6 +237,8 @@ class CircleProgressBar : View {
 
     //按下监听
     var mOnPressedListener: OnPressedListener? = null
+    //对外提供画布操作
+    var mCanvasProvider: ICanvasProvider? = null
 
     //进度条动画
     private var mAnimator: ValueAnimator? = null
@@ -331,6 +348,10 @@ class CircleProgressBar : View {
         drawCenterDrawable(canvas)
 
         drawProgressText(canvas)
+
+        canvas?.save()
+        mCanvasProvider?.provideCanvas(mCenterX, mCenterY, mRadius, canvas)
+        canvas?.restore()
     }
 
     /**
@@ -345,7 +366,8 @@ class CircleProgressBar : View {
 
         mProgressTextPaint.textSize = mProgressTextSize
         mProgressTextPaint.color = mProgressTextColor
-        mProgressTextPaint.getTextBounds(progressText.toString(), 0, progressText.length, mProgressTextRect)
+//        mProgressTextPaint.getTextBounds(progressText.toString(), 0, progressText.length, mProgressTextRect)
+        mProgressTextRect = getTextBounds(progressText.toString(), mProgressTextPaint)
         canvas?.drawText(progressText, 0, progressText.length, mCenterX, mCenterY + mProgressTextRect.height() / 2, mProgressTextPaint)
     }
 
@@ -489,10 +511,8 @@ class CircleProgressBar : View {
         val s = if (isContinuable) { if (mProgress >= mMax) 0 else mProgress } else if (start < 0) 0 else if (start > mMax) mMax else start
         val e = if (end > mMax) mMax else if (end < 0) 0 else end
         mAnimator?.setIntValues(s, e)
-        if (mProgress == 0) {
-            mAnimator?.duration = duration
-            mAnimator?.repeatCount = if (isContinuable) 0 else repeatCount
-        }
+        mAnimator?.duration = (1f * Math.abs(e - s) / mMax * duration).toLong()
+        mAnimator?.repeatCount = if (isContinuable) 0 else repeatCount
         mAnimator?.start()
 
         mOnPressedListener?.onPressStart()
@@ -578,6 +598,10 @@ class CircleProgressBar : View {
             return java.lang.String.format(defaultPattern, (progress.toFloat() / max.toFloat() * 100).toInt())
         }
 
+    }
+
+    interface ICanvasProvider {
+        fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?)
     }
 
     class SavedState : BaseSavedState {

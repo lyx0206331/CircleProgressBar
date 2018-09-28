@@ -188,6 +188,15 @@ class CircleProgressLinearLayout: LinearLayout {
     //进度条动画
     private var mAnimator: ValueAnimator? = null
 
+    //是否支持连续进度加载
+    var isContinuable: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                mAnimator?.repeatCount = 0
+            }
+        }
+
     //是否关联响应子控件。即此值为true时按下子控件，进度条同步响应.此设置需要clickable值为true才有效
     var isLinkChildTouchEvent = false
 
@@ -211,6 +220,7 @@ class CircleProgressLinearLayout: LinearLayout {
         mDrawBackgroundOutsideProgress = a.getBoolean(R.styleable.CircleProgressLayout_cpl_drawBackgroundOutsideProgress, false)
         mCenterColor = a.getColor(R.styleable.CircleProgressLayout_cpl_center_color, Color.TRANSPARENT)
         isLinkChildTouchEvent = a.getBoolean(R.styleable.CircleProgressLayout_cpl_isLinkChildTouchEvent, false)
+        isContinuable = a.getBoolean(R.styleable.CircleProgressLayout_cpl_continuable, false)
 
         a.recycle()
 
@@ -393,12 +403,17 @@ class CircleProgressLinearLayout: LinearLayout {
                 if (mProgress == end && !isStopedAnim) {
                     mOnPressedListener?.onPressEnd()
                     isStopedAnim = true
+                    mAnimator?.cancel()
                 }
             }
         }
-        mAnimator?.setIntValues(if (start < 0) 0 else start, if (end > mMax) mMax else end)
-        mAnimator?.duration = duration
-        mAnimator?.repeatCount = repeatCount
+        val s = if (isContinuable) {
+            if (mProgress >= mMax) 0 else mProgress
+        } else if (start < 0) 0 else if (start > mMax) mMax else start
+        val e = if (end > mMax) mMax else if (end < 0) 0 else end
+        mAnimator?.setIntValues(s, e)
+        mAnimator?.duration = (1f * Math.abs(e - s) / mMax * duration).toLong()
+        mAnimator?.repeatCount = if (isContinuable) 0 else repeatCount
         mAnimator?.start()
 
         mOnPressedListener?.onPressStart()
@@ -409,16 +424,20 @@ class CircleProgressLinearLayout: LinearLayout {
      * 停止动画
      */
     fun stopAnimator() {
-        if (mAnimator != null && mAnimator!!.isRunning) {
+        if (mAnimator != null && mAnimator!!.isRunning && !isStopedAnim) {
             if (!isStopedAnim) {
                 mOnPressedListener?.onPressInterrupt(mAnimator!!.animatedValue as Int)
                 isStopedAnim = true
             }
-            if (mStopAnimType == STOP_ANIM_SIMPLE) {    //直接停止动画并恢复到进度0
+            if (isContinuable) {
                 mAnimator?.cancel()
-                mProgress = 0
-            } else {    //动画回退到进度0
-                mAnimator?.reverse()
+            } else {
+                if (mStopAnimType == STOP_ANIM_SIMPLE) {    //直接停止动画并恢复到进度0
+                    mAnimator?.cancel()
+                    mProgress = 0
+                } else {    //动画回退到进度0
+                    mAnimator?.reverse()
+                }
             }
         }
     }

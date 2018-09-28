@@ -4,6 +4,11 @@
 ![image](https://github.com/lyx0206331/CircleProgressBar/blob/master/previews/screenshot_0.png?raw=true)
 ![gif](https://github.com/lyx0206331/CircleProgressBar/blob/master/previews/record.gif?raw=true)
 
+v0.0.7更新：
+- 修正部分bug
+- CircleProgressBar对外提供画布接口，开发者可自行定义绘制内容
+- CircleProgressLinearLayout及CircleProgressFrameLayout布局支持连续进度
+
 v0.0.6更新：
 - CircleProgressBar作响应按下操作按钮使用时，如果手势移出控件范围，自动中断按下响应
 - CircleProgressBar作响应按下操作按钮使用时，支持连续进度
@@ -23,9 +28,10 @@ Step 1. Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.6'
+	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.7'
 	}
 
+[![](https://jitpack.io/v/lyx0206331/CircleProgressBar.svg)](https://jitpack.io/#lyx0206331/CircleProgressBar)
 
 xml布局文件中如下：  
 ```XML
@@ -65,6 +71,7 @@ xml布局文件中如下：
 	app:cpl_center_color="@color/holo_blue_dark"  
 	app:cpl_style="solid_line"  
 	app:cpl_stop_anim_type="reverse_stop"  
+	app:cpb_continuable="true"
 	app:cpl_isLinkChildTouchEvent="true">   
 	<TextView  
 		android:id="@+id/tvCenter"  
@@ -116,6 +123,15 @@ continuable_progress5.mOnPressedListener = object : CircleProgressBar.OnPressedL
 
         }
 ```
+对外画布接口使用：  
+```Kotlin
+continuable_progress5.mCanvasProvider = object : CircleProgressBar.ICanvasProvider {  
+            override fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?) {  
+                //自定义绘制内容  
+            }  
+        }  
+continuable_progress5.invalidate()  //需要主动刷新
+```
 
 参数说明:  
 
@@ -140,7 +156,7 @@ cpb_style | enum(line,solid,solid_line) | 进度样式(line为刻度样式,solid
 cpb_shader | enum(linear,radial,sweep) | 渐变样式(linear为线性渐变,radial为径向渐变,sweep为扫描式渐变)
 cpb_stroke_cap | enum(butt,round,square) | 线条进度起止位置样式(butt为无样式,round为圆形样式,square为方形样式)
 
-CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除中间数值显示及进度持续累加功能，新增子控件关联响应，参数前缀*cpb*改为*cpl*。区别如下：
+CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除中间数值显示功能，新增子控件关联响应，参数前缀*cpb*改为*cpl*。区别如下：
 
 名称 | 类型 | 说明
 ------ | ----- | -----
@@ -148,5 +164,7 @@ CircleProgressFrameLayout与CircleProgressLinearLayout参数类似，但去除�
 ~~cpb_text_size~~ | dimension/reference | 居中文本大小
 ~~cpb_center_src~~ | reference | 居中图片
 ~~cpb_show_value~~ | boolean/reference | 是否显示居中数值
-~~cpb_continuable~~ | boolean/reference | 进度是否持续累加
 cpl_isLinkChildTouchEvent | boolean/reference | 是否关联子控件触摸事件
+
+
+
