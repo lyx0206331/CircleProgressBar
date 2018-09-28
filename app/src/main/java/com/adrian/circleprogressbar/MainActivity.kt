@@ -1,6 +1,9 @@
 package com.adrian.circleprogressbar
 
 import android.animation.ValueAnimator
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -15,7 +18,19 @@ import com.adrian.circleprogressbarlib.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_center_view.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CircleProgressBar.ICanvasProvider {
+    override fun provideCanvas(centerX: Float, centerY: Float, radius: Float, canvas: Canvas?) {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.color = Color.YELLOW
+        paint.strokeWidth = 2f
+        canvas?.drawLine(centerX + radius / 2, centerY - radius / 2, centerX - radius / 2, centerY + radius / 2, paint)
+        paint.color = Color.BLACK
+        paint.textSize = 45f
+        val textH = CircleProgressBar.getTextBounds("5", paint).height()
+        val textW = CircleProgressBar.getTextBounds("5", paint).width()
+        canvas?.drawText("5", centerX - radius / 2 + textW / 2, centerY - radius / 4 + textH / 2, paint)
+        canvas?.drawText("9", centerX + radius / 4 - textW / 2, centerY + radius / 2, paint)
+    }
 
     private var mLineProgressBar: CircleProgressBar? = null
     private var mSolidProgressBar: CircleProgressBar? = null
@@ -90,6 +105,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        continuable_progress5.mCanvasProvider = this
+        continuable_progress5.invalidate()
 
         cpfl.mStyle = CircleProgressBar.SOLID_LINE
         cpfl.mProgressStrokeWidth = Utils.dip2px(this, 3f)

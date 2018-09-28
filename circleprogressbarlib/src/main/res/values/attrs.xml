@@ -50,6 +50,7 @@
         <attr name="cpl_start_degree" format="float|reference" />
         <attr name="cpl_drawBackgroundOutsideProgress" format="boolean|reference" />
         <attr name="cpl_center_color" format="color|reference" />
+        <attr name="cpl_continuable" format="boolean|reference" />
         <attr name="cpl_isLinkChildTouchEvent" format="boolean|reference" />
         <attr name="cpl_stop_anim_type">
             <enum name="simple_stop" value="0" />

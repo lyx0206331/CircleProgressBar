@@ -160,7 +160,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="@dimen/default_margin"
-            android:clickable="true" />
+            android:clickable="true"
+            app:cpl_continuable="true" />
 
         <com.adrian.circleprogressbarlib.CircleProgressLinearLayout
             android:id="@+id/cpll"
@@ -177,6 +178,7 @@
             app:cpl_center_color="@color/holo_blue_dark"
             app:cpl_style="solid_line"
             app:cpl_stop_anim_type="reverse_stop"
+            app:cpl_continuable="true"
             app:cpl_isLinkChildTouchEvent="true">
             <TextView
                 android:id="@+id/tvCenter"
