@@ -31,6 +31,7 @@ Step 2. Add the dependency
 	        implementation 'com.github.lyx0206331:CircleProgressBar:0.0.7'
 	}
 
+[![](https://jitpack.io/v/lyx0206331/CircleProgressBar.svg)](https://jitpack.io/#lyx0206331/CircleProgressBar)
 
 xml布局文件中如下：  
 ```XML
