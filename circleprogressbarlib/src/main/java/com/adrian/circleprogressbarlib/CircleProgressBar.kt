@@ -12,6 +12,7 @@ import android.support.annotation.IntDef
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 
@@ -560,6 +561,13 @@ class CircleProgressBar : View {
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    /**
+     * 转换字体大小
+     */
+    private inline fun parseTextSize(size: Float): Float {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, size, resources.displayMetrics)
     }
 
     /**
