@@ -566,7 +566,7 @@ class CircleProgressBar : View {
     /**
      * 转换字体大小
      */
-    private fun parseTextSize(size: Float): Float {
+    private inline fun parseTextSize(size: Float): Float {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, size, resources.displayMetrics)
     }
 
