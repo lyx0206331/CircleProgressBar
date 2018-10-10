@@ -71,7 +71,7 @@ xml布局文件中如下：
 	app:cpl_center_color="@color/holo_blue_dark"  
 	app:cpl_style="solid_line"  
 	app:cpl_stop_anim_type="reverse_stop"  
-	app:cpb_continuable="true"
+	app:cpl_continuable="true"
 	app:cpl_isLinkChildTouchEvent="true">   
 	<TextView  
 		android:id="@+id/tvCenter"  
